@@ -1,0 +1,73 @@
+name: 雨云自动签到 & 续期
+
+on:
+  schedule:
+    # 每天 UTC 01:00（北京时间 09:00）签到
+    - cron: "0 1 * * *"
+    # 每天 UTC 02:00（北京时间 10:00）续期
+    - cron: "0 2 * * *"
+
+  # 允许手动触发（方便调试）
+  workflow_dispatch:
+    inputs:
+      task:
+        description: "执行任务"
+        required: true
+        default: "both"
+        type: choice
+        options:
+          - both
+          - signin
+          - renew
+
+jobs:
+  # ── 签到任务 ──────────────────────────────────────────────
+  signin:
+    name: 自动签到
+    runs-on: ubuntu-latest
+    # 定时触发：只在 01:00 那个 cron 执行；手动触发：task=signin 或 both
+    if: |
+      (github.event_name == 'schedule' && github.event.schedule == '0 1 * * *') ||
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.task == 'signin' || github.event.inputs.task == 'both'))
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 配置 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 安装依赖
+        run: pip install requests
+
+      - name: 执行签到
+        env:
+          RAINYUN_API_KEYS: ${{ secrets.RAINYUN_API_KEYS }}
+        run: python scripts/signin.py
+
+  # ── 续期任务 ──────────────────────────────────────────────
+  renew:
+    name: 自动续期
+    runs-on: ubuntu-latest
+    if: |
+      (github.event_name == 'schedule' && github.event.schedule == '0 2 * * *') ||
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.task == 'renew' || github.event.inputs.task == 'both'))
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 配置 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 安装依赖
+        run: pip install requests
+
+      - name: 执行续期
+        env:
+          RAINYUN_INSTANCES: ${{ secrets.RAINYUN_INSTANCES }}
+        run: python scripts/renew.py
