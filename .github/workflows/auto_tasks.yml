@@ -48,26 +48,26 @@ jobs:
         run: python scripts/signin.py
 
   # ── 续期任务 ──────────────────────────────────────────────
-  renew:
-    name: 自动续期
-    runs-on: ubuntu-latest
-    if: |
-      (github.event_name == 'schedule' && github.event.schedule == '0 2 * * *') ||
-      (github.event_name == 'workflow_dispatch' && (github.event.inputs.task == 'renew' || github.event.inputs.task == 'both'))
-
-    steps:
-      - name: 检出代码
-        uses: actions/checkout@v4
-
-      - name: 配置 Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: 安装依赖
-        run: pip install requests
-
-      - name: 执行续期
-        env:
-          RAINYUN_INSTANCES: ${{ secrets.RAINYUN_INSTANCES }}
-        run: python scripts/renew.py
+#  renew:
+#    name: 自动续期
+#    runs-on: ubuntu-latest
+#    if: |
+#      (github.event_name == 'schedule' && github.event.schedule == '0 2 * * *') ||
+#      (github.event_name == 'workflow_dispatch' && (github.event.inputs.task == 'renew' || github.event.inputs.task == 'both'))
+#
+#    steps:
+#      - name: 检出代码
+#        uses: actions/checkout@v4
+#
+#      - name: 配置 Python
+#        uses: actions/setup-python@v5
+#        with:
+#          python-version: "3.11"
+#
+#      - name: 安装依赖
+#        run: pip install requests
+#
+#      - name: 执行续期
+#        env:
+#          RAINYUN_INSTANCES: ${{ secrets.RAINYUN_INSTANCES }}
+#        run: python scripts/renew.py
